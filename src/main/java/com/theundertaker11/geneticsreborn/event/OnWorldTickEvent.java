@@ -140,7 +140,6 @@ public class OnWorldTickEvent {
 		long now = world.getWorldTime();
 		PotionEffect pe= null;
 		int luck = 0;
-		boolean potionReset = world.getWorldTime() % 1800 == 0;
 
 		for (EnumGenes gene : genes.getGeneList()) {
 			if (!gene.isActive()) continue;
@@ -149,16 +148,16 @@ public class OnWorldTickEvent {
 					entity.setAir(300);
 					break;
 				case NIGHT_VISION: 
-					if (entity instanceof EntityPlayer) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.nightVision), 328, 0, false, false)));
+					if (entity instanceof EntityPlayer) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.nightVision), 250, 0, false, false)));
 					break;
 				case JUMP_BOOST: 
-					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.jumpBoost), 110, 1, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.jumpBoost), 50, 1, false, false)));
 					break;
 				case BLINDNESS:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.blindness), 2400, 1, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.blindness), 50, 1, false, false)));
 					break;
 				case CURSED:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.badLuck), 2400, 1, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.badLuck), 50, 1, false, false)));
 					break;
 				case DEAD_ALL:
 					entity.attackEntityFrom(GeneticsReborn.VIRUS_DAMAGE, entity.getHealth() / 2);
@@ -188,16 +187,16 @@ public class OnWorldTickEvent {
 						((EntityLivingBase) e).addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.glowing), 110, 0, false, false)));
 					break;
 				case HASTE:
-					if (!genes.hasGene(EnumGenes.HASTE_2)) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.haste), 110, 0, false, false)));
+					if (!genes.hasGene(EnumGenes.HASTE_2)) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.haste), 50, 0, false, false)));
 					break;
 				case HASTE_2:
-					 entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.haste), 110, 1+GeneticsReborn.mutationAmp, false, false)));
+					 entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.haste), 50, 1+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case HUNGER:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.hunger), 2400, 1, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.hunger), 50, 1, false, false)));
 					break;
 				case INVISIBLE:
-					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.invisibility), 110, 0, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.invisibility), 50, 0, false, false)));
 					break;
 				case LAY_EGG:
 					pe = entity.getActivePotionEffect(Potion.getPotionById(ModUtils.luck));
@@ -208,10 +207,10 @@ public class OnWorldTickEvent {
 					if (genes.hasGene(EnumGenes.LAY_EGG)) GREventHandler.addCooldown(entity, "egg", now, 6000 + ThreadLocalRandom.current().nextInt(6000) - luck * 1200);
 					break;
 				case LEVITATION:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.levetation), 2400, 1+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.levetation), 50, 1+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case LUCK:
-					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.luck), 110, 1+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.luck), 50, 1+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case MEATY_2:
 					pe = entity.getActivePotionEffect(Potion.getPotionById(ModUtils.luck));
@@ -222,37 +221,37 @@ public class OnWorldTickEvent {
 					if (genes.hasGene(EnumGenes.MEATY_2)) GREventHandler.addCooldown(entity, "meat", now, 6000 + ThreadLocalRandom.current().nextInt(6000) - luck * 1200);
 					break;
 				case MINING_WEAKNESS:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.miningFatigure), 2400, 1+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.miningFatigure), 50, 1+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case NAUSEA:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.nausea), 2400, 1, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.nausea), 50, 1, false, false)));
 					break;
 				case POISON:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.poison), 2400, 1, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.poison), 50, 1, false, false)));
 					break;
 				case POISON_4:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.poison), 2400, 1+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.poison), 50, 1+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case REGENERATION:
 					if (!genes.hasGene(EnumGenes.REGENERATION_4)) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.regeneration), 110, 1, false, false)));
 					break;
 				case REGENERATION_4:
-					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.regeneration), 110, 3+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.regeneration), 50, 3+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case RESISTANCE:
 					if (!genes.hasGene(EnumGenes.RESISTANCE_2)) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.resistance), 110, 0, false, false)));
 					break;
 				case RESISTANCE_2:
-					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.resistance), 110, 1+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.resistance), 50, 1+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case SLOWNESS:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSlowness), 2400, 1, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSlowness), 50, 1, false, false)));
 					break;
 				case SLOWNESS_4:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSlowness), 2400, 3+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSlowness), 50, 3+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case SLOWNESS_6:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSlowness), 2400, 5+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSlowness), 50, 5+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case SPEED:
 					if (!genes.hasGene(EnumGenes.SPEED_4) && !genes.hasGene(EnumGenes.SPEED_2)) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSpeed), 110, 0, false, false)));
@@ -261,19 +260,19 @@ public class OnWorldTickEvent {
 					if (!genes.hasGene(EnumGenes.SPEED_4)) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSpeed), 110, 1+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case SPEED_4:
-					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSpeed), 110, 3+GeneticsReborn.mutationAmp*2, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.moveSpeed), 50, GeneticsReborn.mutationAmp*2, false, false)));
 					break;
 				case STRENGTH:
 					if (!genes.hasGene(EnumGenes.STRENGTH_2)) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.strength), 110, 0, false, false)));
 					break;
 				case STRENGTH_2:
-					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.strength), 110, 1+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.strength), 50, 1+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				case WEAKNESS:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.weakness), 2400, 1, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.weakness), 50, 1, false, false)));
 					break;
 				case WITHER:
-					if (potionReset) entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.wither), 2400, 1+GeneticsReborn.mutationAmp, false, false)));
+					entity.addPotionEffect((new PotionEffect(Potion.getPotionById(ModUtils.wither), 50, 1+GeneticsReborn.mutationAmp, false, false)));
 					break;
 				default:
 					break;

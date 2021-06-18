@@ -1,4 +1,9 @@
-# GeneticsReborn 1.12-1.12.2
+# GeneticsReborn 1.12-1.12.2 Patched
+This branch is patch version.
+
+Different form original
+- virus negative potion effects works imminently
+
 A remake of the loved Advanced Genetics mod from 1.7.10
 
 For how to get started check out the wiki page! This mod does not add any power gen as of writing this, so you will need to have another mod that generates FE(Forge Energy) power such as Extra Utilities, Ender IO, Extreme Reactors, etc. etc.
