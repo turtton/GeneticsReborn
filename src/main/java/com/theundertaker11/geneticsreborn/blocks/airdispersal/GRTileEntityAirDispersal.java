@@ -9,6 +9,7 @@ import com.theundertaker11.geneticsreborn.util.CustomEnergyStorage;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityPotion;
+import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,14 +24,15 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
 public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver implements ITickable {
-	public static final int OFF = 0;
-	public static final int UNLOCKED = 1;
-	public static final int LOCKED = 2;
-	public static final int RUNNING =3 ;
-	
+	public static final int UNLOCKED = 0;
+	public static final int LOCKED = 1;
+
+	private int time;
 	private int timeLeft;
 	private final Item[] lock = new Item[4];
 	private int state;
+
+	private ItemStack maskBlock = ItemStack.EMPTY;
 	
 	
 	public GRTileEntityAirDispersal() {
@@ -43,13 +45,13 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
 	
 	public GRTileEntityAirDispersal(String name, boolean a) {
 		super(name);
-		state = OFF;
+		state = UNLOCKED;
 		storage = new CustomEnergyStorage(1000);
 		NUMBER_OF_FIELDS = 5;
 	}
 	
 	public boolean isRunning() {
-		return state == RUNNING;
+		return state == LOCKED && world.isBlockPowered(getPos());
 	}
 	
 	public int getState() {
@@ -67,35 +69,38 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
 	public int getTimeLeft() {
 		return timeLeft;
 	}
+
+	public void setTime(int time) {
+		this.time = time;
+	}
 	
 	public boolean isLocked() {
-		return state == LOCKED || state == RUNNING;
+		return state == LOCKED;
 	}
 	
 	public void setLocked(boolean l) {
 		if (l && (!isPrimed() || !hasPower())) return;
 		state = (l) ? LOCKED : UNLOCKED; 
-		if (state == LOCKED && world.isBlockPowered(getPos())) state = RUNNING; 
 	}
 
 	@Override
 	public void update() {
-		if (hasPower()) 
-			world.setBlockState(getPos(), world.getBlockState(getPos()).withProperty(AirDispersal.MASKED, isLocked() && (guiStackHandler.getStackInSlot(1) != ItemStack.EMPTY)));
-		if (storage.getEnergyStored() == storage.getMaxEnergyStored() && state == OFF)
-			state = UNLOCKED;
-		if (state == RUNNING) {
+//		if (hasPower())
+		world.setBlockState(getPos(), world.getBlockState(getPos()).withProperty(AirDispersal.MASKED, !maskBlock.isEmpty()));
+
+		if (isRunning()) {
 			timeLeft--;
 			if (timeLeft <= 0) {
+				state = UNLOCKED;
+				timeLeft = time;
 				throwPotion(); //must be after state change
 				markDirty();
-				
 			}
 		}
 	}
 	
 	public boolean hasPower() {
-		return state != OFF;
+		return storage.getEnergyStored() > 0;
 	}
 	
 	public boolean isPrimed() {
@@ -114,7 +119,7 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
 		if (!isPrimed()) return;
         if (world.isRemote) return;
         
-		state = OFF;
+		state = UNLOCKED;
 		timeLeft = 0;				
 		clearLock();
 		storage.extractEnergy(1000, false);
@@ -142,6 +147,7 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
 		super.writeToNBT(compound);
 		compound.setTag("inventory", guiStackHandler.serializeNBT());
 		compound.setInteger("state", state);
+		compound.setInteger("time", time);
 		compound.setInteger("timeleft", timeLeft);
 		compound.setString("lock0", (lock[0] != null) ? lock[0].getRegistryName().toString() : "");
 		compound.setString("lock1", (lock[1] != null) ? lock[1].getRegistryName().toString() : "");
@@ -155,6 +161,7 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
 		super.readFromNBT(compound);
 		guiStackHandler.deserializeNBT(compound.getCompoundTag("inventory"));
 		state = compound.getInteger("state");
+		time = compound.getInteger("time");
 		timeLeft = compound.getInteger("timeleft");
 		lock[0] = Item.getByNameOrId(compound.getString("lock0"));
 		lock[1] = Item.getByNameOrId(compound.getString("lock1"));
@@ -163,7 +170,7 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
 	}
 
 	//These are the actual slots, used by GUI, unlimited access
-    private ItemStackHandler guiStackHandler = new ItemStackHandler(2) {
+    private ItemStackHandler guiStackHandler = new ItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
             markDirty();
@@ -175,7 +182,7 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
         }
         
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        	if (state == LOCKED || state == RUNNING) return ItemStack.EMPTY;
+        	if (state == LOCKED) return ItemStack.EMPTY;
         	return super.extractItem(slot, amount, simulate);
         };
         
@@ -185,20 +192,16 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
     	if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == EnumFacing.DOWN) return false;    	
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)  return true;
-        else if (capability == CapabilityEnergy.ENERGY) return true;
+        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)  return false;
         return super.hasCapability(capability, facing);
     }
 
     @SuppressWarnings("unchecked")
 	@Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-    	if (capability == CapabilityEnergy.ENERGY) return (T) storage;
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            if (facing == null) return (T) guiStackHandler;
-            return null;
+            return (T) guiStackHandler;
         }
-
         return super.getCapability(capability, facing);
     }
 	
@@ -206,12 +209,14 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
 	private static final byte TIME_FIELD_ID = 3;
 	private static final byte STATE_FIELD_ID = 4;
 
+	@Override
 	public int getField(int id) {
 		if (id == STATE_FIELD_ID) return this.state;
 		if (id == TIME_FIELD_ID) return this.timeLeft;
 		return super.getField(id);
 	}
 
+	@Override
 	public void setField(int id, int value) {
 		if (id == STATE_FIELD_ID) this.state = value; 
 		else if (id == TIME_FIELD_ID) this.timeLeft = value;
@@ -224,7 +229,11 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
 	}
 
 	public ItemStack maskBlock() {
-		return guiStackHandler.getStackInSlot(1);
+		return maskBlock;
+	}
+
+	public void setMaskBlock(ItemStack item) {
+		maskBlock = item;
 	}
 
 	@Override

@@ -62,13 +62,13 @@ public class AirDispersal extends StorageBlockBase {
 
     @Override
     public EnumBlockRenderType getRenderType(IBlockState state) {
-        return (state.getValue(MASKED) == true) ? EnumBlockRenderType.ENTITYBLOCK_ANIMATED : EnumBlockRenderType.MODEL;
+        return (state.getValue(MASKED) == true) ? EnumBlockRenderType.INVISIBLE : EnumBlockRenderType.MODEL;
     }    
     
 	@Override
 	protected BlockStateContainer createBlockState() {
 		return new BlockStateContainer(this, FACING, MASKED);
-	}	
+	}
 	
 	@Override
 	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {

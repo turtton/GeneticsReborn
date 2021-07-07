@@ -9,6 +9,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemSplashPotion;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -17,11 +19,9 @@ public class ContainerAirDispersal extends BaseContainer  {
 	
 	public ContainerAirDispersal(InventoryPlayer invPlayer, GRTileEntityAirDispersal tileInventory) {
 		this.tileInventory = tileInventory;
-		INPUT_SLOTS = 2;
 		attachPlayerInventory(invPlayer);
 		IItemHandler itemhandlerinput = tileInventory.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 		this.addSlotToContainer(new ContainerAirDispersal.Potion(itemhandlerinput, 0, 55, 35));
-		this.addSlotToContainer(new ContainerAirDispersal.Block(itemhandlerinput, 1, 8, 60));
 	}
 
 	@Override
@@ -41,6 +41,12 @@ public class ContainerAirDispersal extends BaseContainer  {
 			for (IContainerListener listener : this.listeners) {
 				listener.sendWindowProperty(this, 5, ((GRTileEntityAirDispersal)tileInventory).timeLeft());
 			}
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void updateProgressBar(int id, int data) {
+		tileInventory.setField(id, data);
 	}
 
     static class Potion extends SlotItemHandler {
