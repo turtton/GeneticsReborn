@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,9 +38,12 @@ public class GuiAirDispersal extends GuiBase {
 	public void initGui() {
 		super.initGui();
 		initNoPower = !tileEntity.hasPower();
-		if (!initNoPower)
-			this.buttonList.add(new GuiButton( 1, guiLeft+109, guiTop+53, 58, 20, tileEntity.isLocked() ? "Unlock" : "Lock"));
-	}	
+		if (!initNoPower) {
+			this.buttonList.add(getButton());
+		} else {
+			buttonList.add(getButton("NoPower"));
+		}
+	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int x, int y) {
@@ -61,12 +65,14 @@ public class GuiAirDispersal extends GuiBase {
 			}
 		}
 
+		ItemStack mask = tileEntity.maskBlock();
+		if(!mask.isEmpty()) itemRender.renderItemIntoGUI(mask, guiLeft+8, guiTop+60);
+
 		Item[] lock = (tileEntity.isLocked()) ? guess : tileEntity.getLock();
 		if (lock[0] != null) itemRender.renderItemIntoGUI(new ItemStack(lock[0], 1), guiLeft+87, guiTop+9); 
 		if (lock[1] != null) itemRender.renderItemIntoGUI(new ItemStack(lock[1], 1), guiLeft+108, guiTop+9); 
 		if (lock[2] != null) itemRender.renderItemIntoGUI(new ItemStack(lock[2], 1), guiLeft+129, guiTop+9); 
 		if (lock[3] != null) itemRender.renderItemIntoGUI(new ItemStack(lock[3], 1), guiLeft+150, guiTop+9);
-		
 	}
 	
 	@Override
@@ -101,25 +107,39 @@ public class GuiAirDispersal extends GuiBase {
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
+		buttonList.clear();
 		if (tileEntity.isLocked()) {
 			Item[] lock = tileEntity.getLock();
-			for (int i=0;i<4;i++)
-				if (lock[i] != null && lock[i] != guess[i]) return;
+			for (int i=0;i<4;i++) {
+				if (lock[i] != null && lock[i] != guess[i]) {
+					buttonList.add(getButton("InvalidPass!"));
+					return;
+				}
+			}
+
 			//success!
 			tileEntity.setLocked(false);
 			tileEntity.clearLock();
 		} else {
+			if (!tileEntity.isPrimed()) {
+				buttonList.add(getButton("NoPotion!"));
+				return;
+			} else if (!tileEntity.hasPower()) {
+				buttonList.add(getButton("NoPower!"));
+				return;
+			}
+
 			tileEntity.setLocked(true);
 		}
 		GeneticsRebornPacketHandler.INSTANCE.sendToServer(new GuiMessage(tileEntity, 4, tileEntity.getState()));
-		this.buttonList.clear();
-		this.buttonList.add(new GuiButton( 1, guiLeft+109, guiTop+53, 58, 20, tileEntity.isLocked() ? "Unlock" : "Lock"));
+		this.buttonList.add(getButton());
 	}
 	
 	private void addTicks(int pos) {
 		int[] digits = timeToDigits(tileEntity.timeLeft());
 		if (pos == 2) digits[pos] = (digits[pos] + 1) % 6;
 		else digits[pos] = (digits[pos] + 1) % 10;
+		tileEntity.setTime(digitsToTime(digits));
 		tileEntity.setTimeLeft(digitsToTime(digits));
 		GeneticsRebornPacketHandler.INSTANCE.sendToServer(new GuiMessage(tileEntity, 3, tileEntity.getTimeLeft()));
 	}
@@ -129,22 +149,39 @@ public class GuiAirDispersal extends GuiBase {
 		if (tileEntity.isLocked()) guess[pos] = item;
 		else tileEntity.setLock(pos, item);
 	}
-	
+
+	private void setMask() {
+		ItemStack item = Minecraft.getMinecraft().player.inventory.getItemStack();
+		if (item.getItem() instanceof ItemBlock || item.isEmpty()) {
+			tileEntity.setMaskBlock(item);
+		}
+	}
+
+	private GuiButton getButton() {
+		return getButton(tileEntity.isLocked() ? "Unlock" : "Lock");
+	}
+
+	private GuiButton getButton(String name) {
+		return new GuiButton( 1, guiLeft+109, guiTop+53, 58, 20, name);
+	}
 	
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 
-		if (tileEntity.isLocked()) return;
-		if ((isPointInRegion(110, 33, 14, 19, mouseX, mouseY) && (mouseButton == 0))) addTicks(0);
-		if ((isPointInRegion(124, 33, 14, 19, mouseX, mouseY) && (mouseButton == 0))) addTicks(1);
-		if ((isPointInRegion(138, 33, 14, 19, mouseX, mouseY) && (mouseButton == 0))) addTicks(2);
-		if ((isPointInRegion(152, 33, 14, 19, mouseX, mouseY) && (mouseButton == 0))) addTicks(3);
-
 		if ((isPointInRegion(87, 9, 16, 16, mouseX, mouseY) && (mouseButton == 0))) setLock(0);
 		if ((isPointInRegion(108, 9, 16, 16, mouseX, mouseY) && (mouseButton == 0))) setLock(1);
 		if ((isPointInRegion(129, 9, 16, 16, mouseX, mouseY) && (mouseButton == 0))) setLock(2);
 		if ((isPointInRegion(150, 9, 16, 16, mouseX, mouseY) && (mouseButton == 0))) setLock(3);
+
+		if (tileEntity.isLocked()) return;
+
+		if ((isPointInRegion(8, 60, 16, 16, mouseX, mouseY) && (mouseButton == 0))) setMask();
+
+		if ((isPointInRegion(110, 33, 14, 19, mouseX, mouseY) && (mouseButton == 0))) addTicks(0);
+		if ((isPointInRegion(124, 33, 14, 19, mouseX, mouseY) && (mouseButton == 0))) addTicks(1);
+		if ((isPointInRegion(138, 33, 14, 19, mouseX, mouseY) && (mouseButton == 0))) addTicks(2);
+		if ((isPointInRegion(152, 33, 14, 19, mouseX, mouseY) && (mouseButton == 0))) addTicks(3);
 	}
 	
 	
