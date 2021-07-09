@@ -55,7 +55,7 @@ public class MobToGeneRegistry {
 			//End hostiles
 			registerMob(new MobToGeneObject("EntityEndermite", new EnumGenes[] {EnumGenes.SAVE_INVENTORY, EnumGenes.ITEM_MAGNET, EnumGenes.XP_MAGNET}));
 			registerMob(new MobToGeneObject("EntityEnderman", new EnumGenes[] {EnumGenes.TELEPORTER, EnumGenes.MORE_HEARTS}));
-			registerMob(new MobToGeneObject("EntityShulker", new EnumGenes[] {EnumGenes.RESISTANCE, EnumGenes.REGENERATION}));
+			registerMob(new MobToGeneObject("EntityShulker", new EnumGenes[] {EnumGenes.RESISTANCE, EnumGenes.REGENERATION, EnumGenes.LEVITATION}));
 	
 			//Nether hostiles
 			registerMob(new MobToGeneObject("Wither Skeleton", new EnumGenes[] {EnumGenes.WITHER_HIT, EnumGenes.INFINITY} ));
