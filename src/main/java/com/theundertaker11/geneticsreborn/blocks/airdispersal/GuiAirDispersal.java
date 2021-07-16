@@ -151,7 +151,7 @@ public class GuiAirDispersal extends GuiBase {
 	}
 
 	private void setMask() {
-		ItemStack item = Minecraft.getMinecraft().player.inventory.getItemStack();
+		ItemStack item = Minecraft.getMinecraft().player.inventory.getItemStack().copy();
 		if (item.getItem() instanceof ItemBlock || item.isEmpty()) {
 			tileEntity.setMaskBlock(item);
 		}
