@@ -5,12 +5,15 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -18,25 +21,28 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TESRAirDispersal extends TileEntitySpecialRenderer<GRTileEntityAirDispersal> {
 	@Override
 	public void render(GRTileEntityAirDispersal te, double x, double y, double z, float partialTicks, int destroyStage,	float alpha) {
-		//renderTileEntityFast(te, x, y, z, partialTicks, destroyStage, );
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Override
-	public void renderTileEntityFast(GRTileEntityAirDispersal te, double x, double y, double z, float partialTicks,	int destroyStage, float partial, BufferBuilder buffer) {
 		ItemStack mask = te.maskBlock();
-
-		BlockPos pos = new BlockPos(x,y,z);
-		BlockRendererDispatcher br = Minecraft.getMinecraft().getBlockRendererDispatcher();
-		IBlockAccess world = MinecraftForgeClient.getRegionRenderCache(te.getWorld(), pos);
 		if (mask != ItemStack.EMPTY) {
-			IBlockState newstate = Block.getBlockFromItem(mask.getItem()).getStateFromMeta(mask.getMetadata());
-			newstate.getActualState(world, pos);
-	        IBakedModel model = br.getBlockModelShapes().getModelForState(newstate);
-	        buffer.setTranslation(x - pos.getX(), y - pos.getY(), z - pos.getZ());
-	        br.getBlockModelRenderer().renderModel(world, model, newstate, pos, buffer, false);
+			IBlockState newstate = Block.getBlockFromItem(mask.getItem()).getBlockState().getBaseState();
+			if (newstate.getRenderType() == EnumBlockRenderType.MODEL) {
+				bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+				GlStateManager.pushMatrix();
+				GlStateManager.disableLighting();
+
+				Tessellator tessellator = Tessellator.getInstance();
+				BufferBuilder buffer = tessellator.getBuffer();
+
+				buffer.begin(7, DefaultVertexFormats.BLOCK);
+				BlockPos pos = te.getPos();
+				GlStateManager.translate((float) (x - (double) pos.getX()), (float) (y - (double) pos.getY()), (float) (z - (double) pos.getZ()));
+				BlockRendererDispatcher blockRendererDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+				blockRendererDispatcher.getBlockModelRenderer().renderModel(te.getWorld(), blockRendererDispatcher.getModelForState(newstate), newstate, pos, buffer, false, MathHelper.getPositionRandom(te.getPos()));
+				tessellator.draw();
+				GlStateManager.enableLighting();
+				GlStateManager.popMatrix();
+			}
+
 		}
-	}	
-	
+	}
 	
 }

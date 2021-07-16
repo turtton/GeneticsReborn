@@ -235,10 +235,4 @@ public class GRTileEntityAirDispersal extends GRTileEntityBasicEnergyReceiver im
 	public void setMaskBlock(ItemStack item) {
 		maskBlock = item;
 	}
-
-	@Override
-	public boolean hasFastRenderer() {
-		return true;
-	}
-		
 }

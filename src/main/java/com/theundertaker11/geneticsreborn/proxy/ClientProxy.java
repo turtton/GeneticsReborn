@@ -21,6 +21,7 @@ import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -54,7 +55,8 @@ public class ClientProxy extends CommonProxy {
 
 		RenderRegistry.Render();
 
-		TileEntityRendererDispatcher.instance.renderers.put(GRTileEntityAirDispersal.class, new TESRAirDispersal());
+//		TileEntityRendererDispatcher.instance.renderers.put(GRTileEntityAirDispersal.class, new TESRAirDispersal());
+		ClientRegistry.bindTileEntitySpecialRenderer(GRTileEntityAirDispersal.class, new TESRAirDispersal());
 		
         RenderingRegistry.registerEntityRenderingHandler(GREntityPotion.class, manager -> new RenderSnowball<>(manager, GRItems.ViralPotion, Minecraft.getMinecraft().getRenderItem()));		
 	}
