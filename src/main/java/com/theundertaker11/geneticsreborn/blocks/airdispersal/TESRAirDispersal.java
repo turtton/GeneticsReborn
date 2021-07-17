@@ -23,7 +23,7 @@ public class TESRAirDispersal extends TileEntitySpecialRenderer<GRTileEntityAirD
 	public void render(GRTileEntityAirDispersal te, double x, double y, double z, float partialTicks, int destroyStage,	float alpha) {
 		ItemStack mask = te.maskBlock();
 		if (mask != ItemStack.EMPTY) {
-			IBlockState newstate = Block.getBlockFromItem(mask.getItem()).getBlockState().getBaseState();
+			IBlockState newstate = Block.getBlockFromItem(mask.getItem()).getDefaultState();
 			if (newstate.getRenderType() == EnumBlockRenderType.MODEL) {
 				bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 				GlStateManager.pushMatrix();
