@@ -4,7 +4,7 @@ This branch is patch version.
 Different form original
 - virus negative potion effects works imminently
 - fix Airborne Dispersal Device block issued(some function changed)
-- add Levitation DNA recipe(shulker has it but potion effect unimplemented..)
+- add Levitation DNA recipe
 
 A remake of the loved Advanced Genetics mod from 1.7.10
 
