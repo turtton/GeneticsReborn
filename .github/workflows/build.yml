@@ -68,7 +68,7 @@ jobs:
           prerelase: false
           
       - name: Write upload_url to file
-        run: echo '${{steps.create-release.outpts.upload_url }}' > upload_url.txt
+        run: echo '${{ steps.create-release.outputs.upload_url }}' > upload_url.txt
         
       - uses: actions/upload-artifact@v2
         with:
