@@ -30,8 +30,8 @@ jobs:
     - name: Create artifact
       run: |
         assets="${{ env.APP_NAME }}"
-        mkdir -p "$assets"
-        cp -r build/libs/*patched.jar "$assets"
+        mkdir -p "dist/$assets"
+        cp -r build/libs/*patched.jar "dist/$assets/"
         (
           cd "$assets"
           7z a "$assets.zip" "$assets"
