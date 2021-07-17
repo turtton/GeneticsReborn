@@ -9,7 +9,7 @@ on:
       - 'patched.v*'
       
 env:
-  APP_NAME: 'GeneticsReborn'
+  APP_NAME: 'GeneticsReborn-Patched'
 
 jobs:
   build:
@@ -33,7 +33,7 @@ jobs:
         mkdir -p "dist/$assets"
         cp -r build/libs/*patched.jar "dist/$assets/"
         (
-          cd "$assets"
+          cd dist
           7z a "$assets.zip" "$assets"
           ls -lah *.*
         )
